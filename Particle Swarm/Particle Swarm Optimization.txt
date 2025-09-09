@@ -1,0 +1,59 @@
+import random
+import math
+
+def fitness_function(x, wt=1.0):
+    return x * math.sin(wt * x) + 10
+
+def initialize_random(num_particles, bounds):
+    return [random.uniform(bounds[0], bounds[1]) for _ in range(num_particles)]
+
+def initialize_random_velocities(num_particles, bounds):
+    range_width = bounds[1] - bounds[0]
+    return [random.uniform(-range_width, range_width) for _ in range(num_particles)]
+
+def PSO(num_particles, num_iterations, bounds, w, c1, c2):
+    swarm = initialize_random(num_particles, bounds)
+    velocities = initialize_random_velocities(num_particles, bounds)
+
+    personal_best = list(swarm)
+    personal_best_fitness = [fitness_function(x) for x in swarm]
+
+    # Initial global best
+    global_best_index = personal_best_fitness.index(max(personal_best_fitness))
+    global_best = personal_best[global_best_index]
+    global_best_fitness = personal_best_fitness[global_best_index]
+
+    for _ in range(num_iterations):
+        for i in range(num_particles):
+            r1 = random.random()
+            r2 = random.random()
+
+            velocities[i] = (w * velocities[i]
+                            + c1 * r1 * (personal_best[i] - swarm[i])
+                            + c2 * r2 * (global_best - swarm[i]))
+
+            swarm[i] += velocities[i]
+
+            fitness = fitness_function(swarm[i])
+
+            if fitness > personal_best_fitness[i]:
+                personal_best[i] = swarm[i]
+                personal_best_fitness[i] = fitness
+
+                if fitness > global_best_fitness:
+                    global_best = swarm[i]
+                    global_best_fitness = fitness
+
+    return global_best, global_best_fitness
+
+# Parameters
+num_particles = 30
+num_iterations = 100
+bounds = (-10, 10)
+w = 0.5
+c1 = 1.5
+c2 = 1.5
+
+best_position, best_value = PSO(num_particles, num_iterations, bounds, w, c1, c2)
+print("Best Position:", best_position)
+print("Best Fitness Value:", best_value)
