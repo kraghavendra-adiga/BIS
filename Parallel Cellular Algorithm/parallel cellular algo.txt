@@ -1,0 +1,69 @@
+import numpy as np
+
+
+time_table = np.array([
+    [5, 8, 6],
+    [4, 7, 5],
+    [6, 5, 8]
+])
+
+
+alpha = 0.5
+grid_size = (2, 2)
+tasks = [0, 1, 2]
+machines = [0, 1, 2]
+max_iter = 5
+
+
+cells = [
+    [0, 1, 2],
+    [1, 0, 2],
+    [2, 1, 0],
+    [0, 2, 1]
+]
+cells = np.array(cells)
+
+
+def fitness(solution):
+    total = 0
+    for task, machine in enumerate(solution):
+        total += time_table[task, machine]
+    return total
+
+
+def display_grid(cells, fitness_values):
+    print("\nGrid State:")
+    print(f"C1: {cells[0]} (f={fitness_values[0]})   C2: {cells[1]} (f={fitness_values[1]})")
+    print(f"C3: {cells[2]} (f={fitness_values[2]})   C4: {cells[3]} (f={fitness_values[3]})")
+
+
+for iteration in range(1, max_iter + 1):
+    fitness_values = np.array([fitness(c) for c in cells])
+    best_index = np.argmin(fitness_values)
+    best_cell = cells[best_index]
+    best_fit = fitness_values[best_index]
+
+    print(f"\n================ Iteration {iteration} ================")
+    display_grid(cells, fitness_values)
+    print(f"Best Cell: C{best_index+1} -> {best_cell} (Fitness = {best_fit})")
+
+    new_cells = []
+    for cell in cells:
+        new_cell = []
+        for t in range(len(tasks)):
+            if cell[t] != best_cell[t]:
+                new_cell.append(best_cell[t])
+            else:
+                new_cell.append(cell[t])
+        new_cells.append(new_cell)
+    cells = np.array(new_cells)
+
+
+fitness_values = np.array([fitness(c) for c in cells])
+best_index = np.argmin(fitness_values)
+best_cell = cells[best_index]
+best_fit = fitness_values[best_index]
+
+print("\n================ Final Best Solution ================")
+display_grid(cells, fitness_values)
+print(f"\nBest Solution: C{best_index+1} -> {best_cell} (Fitness = {best_fit})")
